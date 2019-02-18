@@ -2,22 +2,31 @@ import React, { Component } from "react";
 import youtube from "../apis/youtube";
 import SearchBar from "./SearchBar";
 import VideoList from "./VideoList";
+import VideoDetail from "./VideoDetail";
 
 class App extends Component {
   state = { videos: [], selectedVideo: null };
 
+  componentDidMount() {
+    this.onSearchSubmit("cats");
+  }
+
   onSearchSubmit = async searchTerm => {
-    // console.log(searchTerm);
+    console.log(searchTerm);
     const response = await youtube.get("/search", {
       params: {
         q: searchTerm
       }
     });
-    this.setState({ videos: response.data.items });
+    this.setState({
+      videos: response.data.items,
+      selectedVideo: response.data.items[0]
+    });
   };
 
   onVideoSelect = video => {
-    console.log("FROM THE APP: ", video);
+    console.log(video);
+    this.setState({ selectedVideo: video });
   };
 
   render() {
@@ -25,10 +34,19 @@ class App extends Component {
       <div className="ui container">
         <SearchBar onFormSubmit={this.onSearchSubmit} />
         {/* I have{this.state.videos.length} videos. */}
-        <VideoList
-          onVideoSelect={this.onVideoSelect}
-          videos={this.state.videos}
-        />
+        <div className="ui grid">
+          <div className="ui row">
+            <div className="eleven wide column">
+              <VideoDetail selectedVideo={this.state.selectedVideo} />
+            </div>
+            <div className="five wide column">
+              <VideoList
+                onVideoSelect={this.onVideoSelect}
+                videos={this.state.videos}
+              />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
